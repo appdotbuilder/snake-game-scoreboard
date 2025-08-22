@@ -1,9 +1,24 @@
+import { db } from '../db';
+import { scoresTable } from '../db/schema';
 import { type Score } from '../schema';
+import { eq, desc } from 'drizzle-orm';
 
 export const getPlayerBestScore = async (playerName: string): Promise<Score | null> => {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is to fetch the highest score for a specific player
-    // from the database. Returns the best score record for the player, or null if
-    // the player has no scores recorded.
-    return Promise.resolve(null);
+  try {
+    const result = await db.select()
+      .from(scoresTable)
+      .where(eq(scoresTable.player_name, playerName))
+      .orderBy(desc(scoresTable.score))
+      .limit(1)
+      .execute();
+
+    if (result.length === 0) {
+      return null;
+    }
+
+    return result[0];
+  } catch (error) {
+    console.error('Failed to get player best score:', error);
+    throw error;
+  }
 };

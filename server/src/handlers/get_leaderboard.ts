@@ -1,9 +1,21 @@
+import { db } from '../db';
+import { scoresTable } from '../db/schema';
 import { type Score, type LeaderboardQuery } from '../schema';
+import { desc } from 'drizzle-orm';
 
 export const getLeaderboard = async (query: LeaderboardQuery): Promise<Score[]> => {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is to fetch the top scores from the database
-    // ordered by score in descending order, limited by the query parameter.
-    // Should return an array of Score objects representing the leaderboard.
-    return Promise.resolve([] as Score[]);
+  try {
+    // Build query to get top scores ordered by score descending
+    const results = await db.select()
+      .from(scoresTable)
+      .orderBy(desc(scoresTable.score))
+      .limit(query.limit)
+      .execute();
+
+    // Return the results as-is since score is integer (no conversion needed)
+    return results;
+  } catch (error) {
+    console.error('Leaderboard fetch failed:', error);
+    throw error;
+  }
 };
